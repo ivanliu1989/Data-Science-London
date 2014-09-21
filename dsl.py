@@ -40,3 +40,8 @@ kde_plot(X_all[:, 0])
 kde_plot(X_all[:, 2])
 kde_plot(X_all[:, 30])
 kde_plot(X_all[:, 38])
+
+qq_plot(X[:,0])
+qq_plot(X[:,2])
+qq_plot(X[:,30])
+qq_plot(X[:,38])
