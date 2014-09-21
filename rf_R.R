@@ -44,10 +44,10 @@ names(submission)<-c("Id","Solution")
 write.table(submission, 'submission_rf_1.csv',sep=',',row.names = F)
 
 ################ gbm ###################################################################
-Grid2 <- expand.grid(n.trees=c(100,500,1000),shrinkage=.1,interaction.depth=c(10,22,50))
-fitControl1 <- trainControl(method="repeatedcv",10,10)
-fit2 <- train(result~., method='gbm', data=x_train,
-              trControl = fitControl1,tuneGrid = Grid2,verbose=T)
+Grid2 <- expand.grid(n.trees=c(1000),shrinkage=.1,interaction.depth=c(5,10,15))
+fitControl2 <- trainControl(method="repeatedcv",10,10,classProbs = TRUE)
+fit2 <- train(result~., method='gbm', data=x,
+              trControl = fitControl2,tuneGrid = Grid2,verbose=T, metric = "ROC")
 pred3 <- predict(fit2, test)
 # index2 <- pred1 >0.5
 # index3 <- pred1 <0.5
@@ -63,14 +63,14 @@ write.table(submission, 'submission_gbm_1.csv',sep=',',row.names = F)
 Grid3 <- expand.grid()
 fitControl3 <- trainControl(method="repeatedcv",10,10)
 fit3 <- train(result~., method='svm', data=x_train,
-              trControl = fitControl3,tuneGrid = Grid3,verbose=T)
+              trControl = fitControl3,verbose=T)
 
 
 
 
 
 ############### glm ###################################################################
-Grid4 <- expand.grid()
+Grid4 <- expand.grid(shrinkage=.1, alpha=.5)
 fitControl4 <- trainControl(method="repeatedcv",10,10)
 fit4 <- train(result~., method='glm', family='binomial', data=x_train,
-              trControl = fitControl4,tuneGrid = Grid4,verbose=T)
+              trControl = fitControl4,tuneGrid = Grid4 ,verbose=T)
