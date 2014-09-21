@@ -48,12 +48,16 @@ Grid2 <- expand.grid(n.trees=c(100,500,1000),shrinkage=.1,interaction.depth=c(10
 fitControl1 <- trainControl(method="repeatedcv",10,10)
 fit2 <- train(result~., method='gbm', data=x_train,
               trControl = fitControl1,tuneGrid = Grid2,verbose=T)
-pred3 <- predict(fit2, x_train)
+pred3 <- predict(fit2, test)
 # index2 <- pred1 >0.5
 # index3 <- pred1 <0.5
 # pred1[index2] <- 1
 # pred1[index3] <- 0
-confusionMatrix(pred3, x_train$result)
+confusionMatrix(pred3, x_test$result)
+Id <- c(1:length(pred3))
+submission <- data.frame(Id, pred3)
+names(submission)<-c("Id","Solution")
+write.table(submission, 'submission_gbm_1.csv',sep=',',row.names = F)
 
 ############### SVM ####################################################################
 Grid3 <- expand.grid()
