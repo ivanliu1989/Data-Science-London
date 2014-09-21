@@ -4,11 +4,12 @@
 # Lasso is used to force most coefficients to zero (unused),
 # so we obtain a sparse model.
 #
+setwd("C:\\Users\\Ivan.Liuyanfeng\\Desktop\\Data_Mining_Work_Space\\Data-Science-London")
 library(glmnet)
 
-x.test <- read.csv("data/test.csv", header=F)
-x <- read.csv("data/train.csv", header=F)
-y <- read.csv("data/trainLabels.csv", header=F)
+x.test <- read.csv("Data/test.csv", header=F)
+x <- read.csv("Data/train.csv", header=F)
+y <- read.csv("Data/trainLabels.csv", header=F)
 
 x = x.train
 y = x.trainLabels
@@ -17,7 +18,9 @@ alpha=1.0     # Lasso
 f=glmnet(x=as.matrix(x), y=as.matrix(y), alpha=alpha, family="binomial")
 summary(f)
 plot(f)
+png('deviance.png')
 plot(f, xvar="dev")   # Show graph of deviance
+dev.off()
 
 cv = cv.glmnet(x=as.matrix(x), y=as.matrix(y), alpha=alpha, family="binomial")
 
@@ -39,9 +42,10 @@ coef(f, cv$lambda.1se)
 #8 40
 predict(f, s=cv$lambda.1se, type="nonzero")
 
+png('sprintf.png')
 plot(cv)
 title(sprintf("alpha=%.2f", alpha))
-
+dev.off()
 # Predict the training data.
 y.pred <- predict(f, s=cv$lambda.1se, newx=as.matrix(x), type="response")
 y.pred <- round( y.pred[,1])
