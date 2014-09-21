@@ -10,3 +10,13 @@ import matplotlib.pyplot as plt
 X_test = pd.read_csv('Data/test.csv', header=None).as_matrix()
 y = pd.read_csv('Data/trainLabels.csv', header=None)[0].as_matrix()
 X = pd.read_csv('Data/train.csv', header=None).as_matrix()
+
+pca2 = PCA(n_components=2, whiten=True)
+pca2.fit(np.r_[X, X_test])
+X_pca = pca2.transform(X)
+i0 = np.argwhere(y == 0)[:, 0]
+i1 = np.argwhere(y == 1)[:, 0]
+X0 = X_pca[i0, :]
+X1 = X_pca[i1, :]
+plt.plot(X0[:, 0], X0[:, 1], 'ro')
+plt.plot(X1[:, 0], X1[:, 1], 'b*')
