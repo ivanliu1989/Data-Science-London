@@ -20,3 +20,23 @@ X0 = X_pca[i0, :]
 X1 = X_pca[i1, :]
 plt.plot(X0[:, 0], X0[:, 1], 'ro')
 plt.plot(X1[:, 0], X1[:, 1], 'b*')
+
+pca = PCA(whiten=True)
+X_all = pca.fit_transform(np.r_[X, X_test])
+print (pca.explained_variance_ratio_)
+
+def kde_plot(x):
+        from scipy.stats.kde import gaussian_kde
+        kde = gaussian_kde(x)
+        positions = np.linspace(x.min(), x.max())
+        smoothed = kde(positions)
+        plt.plot(positions, smoothed)
+
+def qq_plot(x):
+    from scipy.stats import probplot
+    probplot(x, dist='norm', plot=plt)
+    
+kde_plot(X_all[:, 0])
+kde_plot(X_all[:, 2])
+kde_plot(X_all[:, 30])
+kde_plot(X_all[:, 38])
