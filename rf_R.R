@@ -57,7 +57,7 @@ confusionMatrix(pred3, x_test$result)
 Id <- c(1:length(pred3))
 submission <- data.frame(Id, pred3)
 names(submission)<-c("Id","Solution")
-write.table(submission, 'submission_gbm_1.csv',sep=',',row.names = F)
+write.table(submission, 'submission_gbm_2.csv',sep=',',row.names = F)
 
 ############### SVM ####################################################################
 Grid3 <- expand.grid()
