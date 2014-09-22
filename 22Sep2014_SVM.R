@@ -57,7 +57,7 @@
 
 ##### Evaluation #####
     trellis.par.set(caretTheme())
-    png('tune_plot.png')    
+    png('tune_plot2.png')    
     plot(gbmFit2, scales = list(x = list(log = 2)))
     dev.off()
     gbmImp <- varImp(gbmFit2, scale = FALSE)
