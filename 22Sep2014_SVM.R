@@ -71,3 +71,18 @@
 
 ##### Evaluation #####
     confusionMatrix(pred_gbm, x_test$result)
+
+######################## reduce dimemtionality ####################
+pcaVar <- preProcess(x[,1:40], method = 'pca')
+
+##### svm #####
+set.seed(1)
+sigDist <- sigest(result~., data = x_train, frac = 1)
+ctrl <- trainControl(method = "repeatedcv", repeats = 10, savePred = T)
+svmGrid <- expand.grid(.sigma = sigDist, .C = 2^(-2:7))
+set.seed(2)
+svmPCAFit <- train(result~., data=x_train,
+                   method = "svmRadial",
+                   tuneGrid = svmGrid,                  
+                   preProcess = c("center","scale","pca"), # if center and scale needed
+                   trControl = ctrl)
