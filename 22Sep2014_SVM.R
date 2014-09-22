@@ -42,12 +42,12 @@
     fitControl <- trainControl(method = "repeatedcv",
         number = 10,repeats = 10, summaryFunction = twoClassSummary,
         classProbs = TRUE)
-    gbmGrid <-  expand.grid(interaction.depth = c(1, 5, 9),
+    gbmGrid <-  expand.grid(interaction.depth = c(9, 15, 20),
                             n.trees = (1:30)*50,
                             shrinkage = 0.1)
 ##### Modeling #####
     set.seed(825)
-    gbmFit <- train(result ~ ., data = x_train,
+    gbmFit2 <- train(result ~ ., data = x_train,
                      method = "gbm",
                      trControl = fitControl,
                      verbose = FALSE,
@@ -58,13 +58,16 @@
 ##### Evaluation #####
     trellis.par.set(caretTheme())
     png('tune_plot.png')    
-    plot(gbmFit, scales = list(x = list(log = 2)))
+    plot(gbmFit2, scales = list(x = list(log = 2)))
     dev.off()
-    gbmImp <- varImp(gbmFit, scale = FALSE)
+    gbmImp <- varImp(gbmFit2, scale = FALSE)
     png('varImp.png')    
     plot(gbmImp, top = 40)
     dev.off()
-    getTrainPerf(gbmFit)
+    getTrainPerf(gbmFit2)
+
 ##### Prediction #####
+    pred_gbm <- predict(gbmFit2, x_test)
 
 ##### Evaluation #####
+    confusionMatrix(pred_gbm, x_test$result)
