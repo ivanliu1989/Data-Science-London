@@ -86,8 +86,8 @@ svmPCAFit <- train(result~., data=x,
                    tuneGrid = svmGrid,                  
                    preProcess = c("center","scale","pca"), # if center and scale needed
                    trControl = ctrl)
-pred_svm <- predict(svmPCAFit, x_test)
-confusionMatrix(pred_svm, x_test$result)
+pred_svm <- predict(svmPCAFit, x)
+confusionMatrix(pred_svm, x$result)
 trellis.par.set(caretTheme())
 png('tune_plot_svmRadial.png')    
 plot(svmPCAFit, scales = list(x = list(log = 2)))
