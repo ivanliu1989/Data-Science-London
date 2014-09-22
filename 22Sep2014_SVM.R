@@ -75,14 +75,26 @@
 ######################## reduce dimemtionality ####################
 pcaVar <- preProcess(x[,1:40], method = 'pca')
 
-##### svm #####
+##### svm ##################################################
 set.seed(1)
 sigDist <- sigest(result~., data = x_train, frac = 1)
 ctrl <- trainControl(method = "repeatedcv", repeats = 10, savePred = T)
 svmGrid <- expand.grid(.sigma = sigDist, .C = 2^(-2:7))
 set.seed(2)
-svmPCAFit <- train(result~., data=x_train,
+svmPCAFit <- train(result~., data=x,
                    method = "svmRadial",
                    tuneGrid = svmGrid,                  
                    preProcess = c("center","scale","pca"), # if center and scale needed
                    trControl = ctrl)
+pred_svm <- predict(svmPCAFit, x_test)
+confusionMatrix(pred_svm, x_test$result)
+trellis.par.set(caretTheme())
+png('tune_plot_svmRadial.png')    
+plot(svmPCAFit, scales = list(x = list(log = 2)))
+dev.off()
+svmImp <- varImp(svmPCAFit, scale = FALSE)
+png('varImp_svmRadial.png')    
+plot(svmImp, top = 40)
+dev.off()
+getTrainPerf(svmPCAFit)
+###################################################################
