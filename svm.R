@@ -37,7 +37,7 @@ Grid <- expand.grid(C=c(1:10,0.5))
 fitControl <- trainControl(method="repeatedcv",10,10,classProbs = T)
 fit_svmRadialCost <- train(result~V15+V13+V19+V35+V29+V40+V37+V33+V7+V24+V12+V5+V2+V21, 
                            method='svmRadialCost', data=x,
-                           trControl = fitControl, verbose=T, preProcess=c('pca'),
+                           trControl = fitControl, verbose=T, preProcess=c('pca','center','scale'),
                            tuneGrid=Grid)
 Pred <- predict(fit_svmRadialCost, x_train)
 confusionMatrix(Pred, x_train$result)
@@ -52,5 +52,6 @@ confusionMatrix(Pred, x_test$result) ## acc 0.88 after 1st feature selection
 Pred_test <- predict(fit_svmRadialCost, test)
 Id <- c(1:length(Pred_test))
 submission <- data.frame(Id, Pred_test)
+levels(submission[,2]) <- c(0,1)
 names(submission)<-c("Id","Solution")
 write.table(submission, 'submission_svm_24Sep2014.csv',sep=',',row.names = F)
