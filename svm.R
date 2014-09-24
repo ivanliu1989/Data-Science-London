@@ -15,11 +15,10 @@ mean(is.na(x))
 index <- createDataPartition(x$result, p = 0.8,list = F)
 x_train <- x[index,]
 x_test <- x[-index,]
-
-##### data explorasion #####
-featurePlot(x=x$result, y=pr)
-
-
+x_train_1 <- x_train[,-41]
+prep <- preProcess(x = x_train_1, method=c('center','scale'))
+x_train_1 <- predict(prep, x_train_1)
+x_train_1 <- cbind(x_train_1, x_train[,41])
 
 ##### GMM #####
 g1 <-as.matrix(x_train[,1:40])
@@ -33,14 +32,14 @@ res <- gmm(g2~g1, x1)
     # gamma=c(0.01,0.001,0.0001)1/number of features
     # range=10^c(-3:3)
     # kernel=rbf
-Grid <- expand.grid(C=c(1:10,0.5)) 
+Grid <- expand.grid(C=seq(1,10,0.5)) 
 fitControl <- trainControl(method="repeatedcv",10,10,classProbs = T)
 fit_svmRadialCost <- train(result~V15+V13+V19+V35+V29+V40+V37+V33+V7+V24+V12+V5+V2+V21, 
                            method='svmRadialCost', data=x,
                            trControl = fitControl, verbose=T, preProcess=c('pca','center','scale'),
                            tuneGrid=Grid)
-Pred <- predict(fit_svmRadialCost, x_train)
-confusionMatrix(Pred, x_train$result)
+Pred <- predict(fit_svmRadialCost, x_train_1)
+confusionMatrix(Pred, x_train_1[,41])
 featureSelection <- varImp(fit_svmRadialCost)
 plot(featureSelection)
 
