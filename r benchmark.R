@@ -12,7 +12,7 @@ test <- read.csv("Data/test.csv",header=F)
 ## PCA ##
 #########
 pca <- prcomp(rbind(train,test))
-train <- as.data.frame(cbind(y[,1],pca$x[1:1000,]))
+train <- as.data.frame(cbind(y,pca$x[1:1000,]))
 train[,1] <- as.factor(ifelse(train[,1] == 0, "zero", "one"))
 names(train)[1] <- "label"
 test <- as.data.frame(pca$x[1001:10000,])
@@ -23,20 +23,20 @@ test <- as.data.frame(pca$x[1001:10000,])
 registerDoMC(10)
 rfeFuncs <- rfFuncs
 rfeFuncs$summary <- twoClassSummary
-rfe.control <- rfeControl(rfeFuncs, method = "repeatedcv", number=10 ,repeats = 4, verbose = FALSE, returnResamp = "final")
-rfe.rf <- rfe(train[,-1], train[,1], sizes = 10:15, rfeControl = rfe.control,metric="ROC")
+rfe.control <- rfeControl(rfeFuncs, method = "repeatedcv", number=10 ,repeats = 10, verbose = T, returnResamp = "final")
+rfe.rf <- rfe(train[,-1], train[,1], sizes = 10:25, rfeControl = rfe.control,metric="ROC")
 
 ###############
 ## Save Data ##
 ###############
 train <- train[,c("label",predictors(rfe.rf))]
 test <- test[,predictors(rfe.rf)]
-save(train,test,file="Data/trainData.RData")
+save(train,test,file="Data/trainData2.RData")
 
 ##################
 ## Build Models ##
 ##################
-load("Data/trainData.RData")
+load("Data/trainData2.RData")
 #model parameters
 registerDoMC(7)
 pp <- c("center","scale")
@@ -53,7 +53,7 @@ sumFunc <- function (data, lev = NULL, model = NULL) {
     out
 }
 tc <- trainControl(method="repeatedcv",number=10,repeats=10,classProbs=T,savePred=T,index=createMultiFolds(train$label, k=10, times=5),summaryFunction=sumFunc)
-(model <- train(label~.,data=train,method="avNNet",trControl=tc,preProcess=pp,metric="ROC",tuneGrid=expand.grid(.bag=c(F),.size=c(27:28),.decay=c(0.17)),allowParallel=F))
+(model <- train(label~.,data=train,method="avNNet",trControl=tc,preProcess=pp,metric="ROC",tuneGrid=expand.grid(.bag=c(T),.size=c(25:30),.decay=c(0.17)),allowParallel=F))
 test.pred <- predict(model,test,type="prob")[,"one"]
 
 ##################################
@@ -67,11 +67,11 @@ train <- rbind(train,newtrain[,names(train)])
 
 #make new model
 tc$index <- lapply(tc$index,function(fold) c(fold,1001:nrow(train)))
-(model.semi <- train(label~.,data=train,method="avNNet",trControl=tc,preProcess=pp,metric="ROC",tuneGrid=expand.grid(.bag=c(F),.size=c(27:28),.decay=c(0.17)),allowParallel=F))
+(model.semi <- train(label~.,data=train,method="avNNet",trControl=tc,preProcess=pp,metric="ROC",tuneGrid=expand.grid(.bag=c(T),.size=c(20:35),.decay=c(0.17)),allowParallel=F))
 test.pred.semi <- predict(model.semi,test,type="prob")[,"one"]
 
 ######################
 ## Save Predictions ##
 ######################
 test.pred <- (test.pred+test.pred.semi)/2
-write.csv(data.frame(id=1:length(test.pred),solution=ifelse(test.pred < 0.5, 0 ,1)),file="Data/submission_25Sep2014.csv",row.names=F)
+write.csv(data.frame(id=1:length(test.pred),solution=ifelse(test.pred < 0.5, 0 ,1)),file="Data/submission_25Sep2014_5pm.csv",row.names=F)
