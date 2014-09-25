@@ -31,12 +31,12 @@ rfe.rf <- rfe(train[,-1], train[,1], sizes = 10:15, rfeControl = rfe.control,met
 ###############
 train <- train[,c("label",predictors(rfe.rf))]
 test <- test[,predictors(rfe.rf)]
-save(train,test,file="trainData.RData")
-
+save(train,test,file="Data/trainData.RData")
 
 ##################
 ## Build Models ##
 ##################
+load("Data/trainData.RData")
 #model parameters
 registerDoMC(7)
 pp <- c("center","scale")
@@ -52,7 +52,7 @@ sumFunc <- function (data, lev = NULL, model = NULL) {
     names(out) <- c("ACC","ROC", "Sens", "Spec")
     out
 }
-tc <- trainControl(method="repeatedcv",number=10,repeats=4,classProbs=T,savePred=T,index=createMultiFolds(train$label, k=10, times=5),summaryFunction=sumFunc)
+tc <- trainControl(method="repeatedcv",number=10,repeats=10,classProbs=T,savePred=T,index=createMultiFolds(train$label, k=10, times=5),summaryFunction=sumFunc)
 (model <- train(label~.,data=train,method="avNNet",trControl=tc,preProcess=pp,metric="ROC",tuneGrid=expand.grid(.bag=c(F),.size=c(27:28),.decay=c(0.17)),allowParallel=F))
 test.pred <- predict(model,test,type="prob")[,"one"]
 
@@ -74,4 +74,4 @@ test.pred.semi <- predict(model.semi,test,type="prob")[,"one"]
 ## Save Predictions ##
 ######################
 test.pred <- (test.pred+test.pred.semi)/2
-write.csv(data.frame(id=1:length(test.pred),solution=ifelse(test.pred < 0.5, 0 ,1)),file="avNNet.csv",row.names=F)
+write.csv(data.frame(id=1:length(test.pred),solution=ifelse(test.pred < 0.5, 0 ,1)),file="Data/submission_25Sep2014.csv",row.names=F)
